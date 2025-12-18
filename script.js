@@ -23,25 +23,59 @@ console.log("Firebase conectado com sucesso");
 
 // Missões Abaixo
 
-const missions = [
+// Lista de missões iniciais (para teste)
+let missions = [
   { titulo: "Explorar as ruínas", levelMin: 5, levelMax: 15 },
-  { titulo: "Resgatar aldeão", levelMin: 3, levelMax: 10 },
-  { titulo: "Caçar goblins", levelMin: 1, levelMax: 5 }
+  { titulo: "Resgatar aldeão", levelMin: 3, levelMax: 10 }
 ];
 
+// Função para renderizar as missões
 function renderMissions() {
   const container = document.getElementById("missions");
-  container.innerHTML = "";
+  container.innerHTML = ""; // Limpa o container
 
-  missions.forEach(m => {
+  missions.forEach((m, index) => {
     const div = document.createElement("div");
     div.className = "mission";
     div.innerHTML = `
       <strong>${m.titulo}</strong><br>
       Nível: ${m.levelMin} - ${m.levelMax}
     `;
+
     container.appendChild(div);
   });
 }
 
+// Função para adicionar nova missão
+function addMission() {
+  const titleInput = document.getElementById("mission-title");
+  const levelMinInput = document.getElementById("level-min");
+  const levelMaxInput = document.getElementById("level-max");
+
+  const titulo = titleInput.value.trim();
+  const levelMin = parseInt(levelMinInput.value);
+  const levelMax = parseInt(levelMaxInput.value);
+
+  // Validação básica
+  if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax) {
+    alert("Por favor, preencha corretamente todos os campos!");
+    return;
+  }
+
+  // Adiciona a missão
+  missions.push({ titulo, levelMin, levelMax });
+
+  // Limpa os campos do formulário
+  titleInput.value = "";
+  levelMinInput.value = "";
+  levelMaxInput.value = "";
+
+  // Atualiza a tela
+  renderMissions();
+}
+
+// Ativar o botão
+document.getElementById("add-mission").addEventListener("click", addMission);
+
+// Renderizar missões iniciais
 renderMissions();
