@@ -21,13 +21,13 @@ const auth = getAuth(app);
 // Teste simples
 console.log("Firebase conectado com sucesso");
 
-const missions = [];
+// Missões Abaixo
 
-missions.push({
-  titulo: "Explorar as ruínas",
-  levelMin: 5,
-  levelMax: 15
-});
+const missions = [
+  { titulo: "Explorar as ruínas", levelMin: 5, levelMax: 15 },
+  { titulo: "Resgatar aldeão", levelMin: 3, levelMax: 10 },
+  { titulo: "Caçar goblins", levelMin: 1, levelMax: 5 }
+];
 
 function renderMissions() {
   const container = document.getElementById("missions");
@@ -38,7 +38,7 @@ function renderMissions() {
     div.className = "mission";
     div.innerHTML = `
       <strong>${m.titulo}</strong><br>
-      Level: ${m.levelMin} - ${m.levelMax}
+      Nível: ${m.levelMin} - ${m.levelMax}
     `;
     container.appendChild(div);
   });
