@@ -20,3 +20,28 @@ const auth = getAuth(app);
 
 // Teste simples
 console.log("Firebase conectado com sucesso");
+
+const missions = [];
+
+missions.push({
+  titulo: "Explorar as ruínas",
+  levelMin: 5,
+  levelMax: 15
+});
+
+function renderMissions() {
+  const container = document.getElementById("missions");
+  container.innerHTML = "";
+
+  missions.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "mission";
+    div.innerHTML = `
+      <strong>${m.titulo}</strong><br>
+      Level: ${m.levelMin} - ${m.levelMax}
+    `;
+    container.appendChild(div);
+  });
+}
+
+renderMissions();
