@@ -5,12 +5,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth
 
 // Configuração do Firebase
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_DOMINIO",
-  projectId: "SEU_PROJECT_ID",
-  storageBucket: "SEU_BUCKET",
-  messagingSenderId: "SEU_SENDER_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyD6uk2FMJYzurdmGC9pUkGIznCHn19HjCA",
+  authDomain: "mesaorganizada-6894b.firebaseapp.com",
+  projectId: "mesaorganizada-6894b",
+  storageBucket: "mesaorganizada-6894b.firebasestorage.app",
+  messagingSenderId: "217444951338",
+  appId: "1:217444951338:web:9b506527cd29f523a92a53"
 };
 
 // Inicialização
