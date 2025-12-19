@@ -11,11 +11,22 @@
 <!-- Formulário para criar nova missão -->
 <div id="new-mission-form">
   <input type="text" id="mission-title" placeholder="Título da missão">
+
   <input type="number" id="level-min" placeholder="Nível mínimo">
   <input type="number" id="level-max" placeholder="Nível máximo">
-  <button id="add-mission">Adicionar Missão</button>
-</div>
 
+  <label for="mission-date">Data da missão:</label>
+  <input type="date" id="mission-date">
+
+  <label for="accept-deadline">Prazo para aceitar:</label>
+  <input type="date" id="accept-deadline">
+
+  <input type="number" id="min-players" placeholder="Participantes mínimos">
+  <input type="number" id="max-players" placeholder="Participantes máximos">
+
+  <button type="button" id="add-mission">Adicionar Missão</button>
+</div>
+  
 <div id="missions"></div>
   
 <!-- Script -->
