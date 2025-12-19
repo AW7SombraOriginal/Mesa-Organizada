@@ -1,6 +1,6 @@
 // Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // Configuração do Firebase
@@ -18,7 +18,6 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Teste simples
 console.log("Firebase conectado com sucesso");
 
 // ============================
@@ -27,20 +26,23 @@ console.log("Firebase conectado com sucesso");
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Lista de missões
-  let missions = [];
+  const missionsCollection = collection(db, "missions");
 
   // Renderizar missões
-  function renderMissions() {
+  async function renderMissions() {
     const container = document.getElementById("missions");
     container.innerHTML = "";
 
-    missions.forEach((m, index) => {
+    const snapshot = await getDocs(missionsCollection);
+    snapshot.forEach(docSnap => {
+      const m = docSnap.data();
+      const id = docSnap.id;
+
       const div = document.createElement("div");
       div.className = "mission";
 
       const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
-      const participantesCount = m.participants.length;
+      const participantesCount = m.participants ? m.participants.length : 0;
 
       div.innerHTML = `
         <strong>${m.titulo}</strong><br>
@@ -48,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Dia da missão: ${m.missionDay}<br>
         Prazo para aceitar: ${prazo}<br>
         Participantes: ${participantesCount} / ${m.maxPlayers}<br>
-        <button type="button" onclick="acceptMission(${index})">Aceitar Missão</button>
+        <button type="button" onclick="acceptMission('${id}')">Aceitar Missão</button>
       `;
 
       container.appendChild(div);
@@ -56,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Adicionar missão
-  function addMission() {
+  async function addMission() {
     const titleInput = document.getElementById("mission-title");
     const levelMinInput = document.getElementById("level-min");
     const levelMaxInput = document.getElementById("level-max");
@@ -79,12 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    missions.push({
+    await addDoc(missionsCollection, {
       titulo,
       levelMin,
       levelMax,
       missionDay,
-      acceptDeadline,
+      acceptDeadline: acceptDeadline || null,
       minPlayers,
       maxPlayers,
       participants: []
@@ -103,25 +105,30 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Aceitar missão
-  window.acceptMission = function(index) {
-    const mission = missions[index];
+  window.acceptMission = async function(id) {
+    const missionDoc = doc(db, "missions", id);
+    const snapshot = await getDocs(missionsCollection);
+    let missionData;
+    snapshot.forEach(docSnap => {
+      if (docSnap.id === id) missionData = docSnap.data();
+    });
 
-    if (mission.participants.length >= mission.maxPlayers) {
+    if (!missionData) return;
+
+    if (missionData.participants.length >= missionData.maxPlayers) {
       alert("Essa missão já atingiu o número máximo de participantes!");
       return;
     }
 
-    // Usuário fictício; depois podemos conectar ao Auth do Firebase
-    mission.participants.push("Usuário");
+    const newParticipants = [...missionData.participants, "Usuário"];
+    await updateDoc(missionDoc, { participants: newParticipants });
 
-    alert(`Você aceitou a missão "${mission.titulo}". Total de participantes: ${mission.participants.length}`);
+    alert(`Você aceitou a missão "${missionData.titulo}". Total de participantes: ${newParticipants.length}`);
     renderMissions();
   }
 
-  // Ativar botão
+  // Inicializar
   document.getElementById("add-mission").addEventListener("click", addMission);
-
-  // Renderizar inicial
   renderMissions();
 
 });
