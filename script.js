@@ -23,75 +23,101 @@ console.log("Firebase conectado com sucesso");
 
 // Missões Abaixo
 
-// Lista de missões iniciais (para teste)
-let missions = [
-  { titulo: "Explorar as ruínas", levelMin: 5, levelMax: 15 },
-  { titulo: "Resgatar aldeão", levelMin: 3, levelMax: 10 }
-];
+// Lista de missões
+let missions = [];
 
-// Função para renderizar as missões
-function renderMissions() {
-  const container = document.getElementById("missions");
-  container.innerHTML = ""; // Limpa o container
-
-  missions.forEach((m, index) => {
-    const div = document.createElement("div");
-    div.className = "mission";
-    div.innerHTML = `
-      <strong>${m.titulo}</strong><br>
-      Nível: ${m.levelMin} - ${m.levelMax}
-    `;
-
-    container.appendChild(div);
-  });
-}
-
-// Função para adicionar nova missão
+// Renderizar missões
 function renderMissions() {
   const container = document.getElementById("missions");
   container.innerHTML = "";
 
-  missions.forEach(m => {
+  missions.forEach((m, index) => {
     const div = document.createElement("div");
     div.className = "mission";
+
+    // Prazo indeterminado caso vazio
+    const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
+
     div.innerHTML = `
       <strong>${m.titulo}</strong><br>
       Nível: ${m.levelMin} - ${m.levelMax}<br>
-      Data da missão: ${m.missionDate}<br>
-      Prazo para aceitar: ${m.acceptDeadline}<br>
+      Dia da missão: ${m.missionDay}<br>
+      Prazo para aceitar: ${prazo}<br>
       Participantes: ${m.minPlayers} - ${m.maxPlayers}
+      <br><button type="button" onclick="acceptMission(${index})">Aceitar Missão</button>
     `;
+
     container.appendChild(div);
   });
 }
 
-  // Validação básica
+// Adicionar missão
+function addMission() {
+  const titleInput = document.getElementById("mission-title");
+  const levelMinInput = document.getElementById("level-min");
+  const levelMaxInput = document.getElementById("level-max");
+  const missionDayInput = document.getElementById("mission-day");
+  const deadlineInput = document.getElementById("accept-deadline");
+  const minPlayersInput = document.getElementById("min-players");
+  const maxPlayersInput = document.getElementById("max-players");
+
+  const titulo = titleInput.value.trim();
+  const levelMin = parseInt(levelMinInput.value);
+  const levelMax = parseInt(levelMaxInput.value);
+  const missionDay = missionDayInput.value;
+  const acceptDeadline = deadlineInput.value;
+  const minPlayers = parseInt(minPlayersInput.value);
+  const maxPlayers = parseInt(maxPlayersInput.value);
+
+  // Validação
   if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
-      || !missionDate || !acceptDeadline
-      || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
+      || !missionDay || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
     alert("Por favor, preencha corretamente todos os campos!");
     return;
   }
 
-  // Adiciona a missão
+  // Adiciona missão com lista de participantes vazia
   missions.push({
     titulo,
     levelMin,
     levelMax,
-    missionDate,
+    missionDay,
     acceptDeadline,
     minPlayers,
-    maxPlayers
+    maxPlayers,
+    participants: []
   });
 
-  // Limpa campos
+  // Limpar campos
   titleInput.value = "";
   levelMinInput.value = "";
   levelMaxInput.value = "";
-  dateInput.value = "";
+  missionDayInput.value = "Segunda-feira";
   deadlineInput.value = "";
   minPlayersInput.value = "";
   maxPlayersInput.value = "";
 
   renderMissions();
 }
+
+// Aceitar missão
+function acceptMission(index) {
+  const mission = missions[index];
+
+  // Limite de participantes
+  if (mission.participants.length >= mission.maxPlayers) {
+    alert("Essa missão já atingiu o número máximo de participantes!");
+    return;
+  }
+
+  // Para teste, adicionamos um usuário fictício
+  mission.participants.push("Usuário");
+
+  alert(`Você aceitou a missão "${mission.titulo}". Total de participantes: ${mission.participants.length}`);
+
+  renderMissions();
+}
+
+// Inicializar
+document.getElementById("add-mission").addEventListener("click", addMission);
+renderMissions();
