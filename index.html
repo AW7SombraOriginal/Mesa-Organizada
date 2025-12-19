@@ -2,42 +2,39 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Guilda de Missões</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadro de Missões</title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase SDK -->
+  <script type="module" src="script.js"></script>
 </head>
 <body>
-  <h1>📜 Quadro de Missões</h1>
+  <h1>🛡️ Quadro de Missões</h1>
 
-<!-- Formulário para criar nova missão -->
-<div id="new-mission-form">
-  <input type="text" id="mission-title" placeholder="Título da missão">
+  <div id="new-mission-form">
+    <input type="text" id="mission-title" placeholder="Título da missão">
+    <input type="number" id="level-min" placeholder="Nível mínimo">
+    <input type="number" id="level-max" placeholder="Nível máximo">
+    <select id="mission-day">
+      <option>Segunda-feira</option>
+      <option>Terça-feira</option>
+      <option>Quarta-feira</option>
+      <option>Quinta-feira</option>
+      <option>Sexta-feira</option>
+      <option>Sábado</option>
+      <option>Domingo</option>
+    </select>
+    <input type="date" id="accept-deadline" placeholder="Prazo para aceitar (opcional)">
+    <input type="number" id="min-players" placeholder="Mínimo de participantes">
+    <input type="number" id="max-players" placeholder="Máximo de participantes">
+    <button id="add-mission">Adicionar Missão</button>
+  </div>
 
-  <input type="number" id="level-min" placeholder="Nível mínimo">
-  <input type="number" id="level-max" placeholder="Nível máximo">
-
-  <label for="mission-day">Dia da missão:</label>
-  <select id="mission-day">
-    <option value="Segunda-feira">Segunda-feira</option>
-    <option value="Terça-feira">Terça-feira</option>
-    <option value="Quarta-feira">Quarta-feira</option>
-    <option value="Quinta-feira">Quinta-feira</option>
-    <option value="Sexta-feira">Sexta-feira</option>
-    <option value="Sábado">Sábado</option>
-    <option value="Domingo">Domingo</option>
-  </select>
-
-  <label for="accept-deadline">Prazo para aceitar (opcional):</label>
-  <input type="date" id="accept-deadline">
-
-  <input type="number" id="min-players" placeholder="Participantes mínimos">
-  <input type="number" id="max-players" placeholder="Participantes máximos">
-
-  <button type="button" id="add-mission">Adicionar Missão</button>
-</div>
-
-<div id="missions"></div>
-  
-<!-- Script -->
-<script type="module" src="script.js"></script>
+  <div id="missions">
+    <!-- Missões serão renderizadas aqui -->
+  </div>
 </body>
 </html>
