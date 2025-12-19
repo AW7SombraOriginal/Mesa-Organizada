@@ -47,22 +47,23 @@ function renderMissions() {
 }
 
 // Função para adicionar nova missão
-function addMission() {
-  const titleInput = document.getElementById("mission-title");
-  const levelMinInput = document.getElementById("level-min");
-  const levelMaxInput = document.getElementById("level-max");
-  const dateInput = document.getElementById("mission-date");
-  const deadlineInput = document.getElementById("accept-deadline");
-  const minPlayersInput = document.getElementById("min-players");
-  const maxPlayersInput = document.getElementById("max-players");
+function renderMissions() {
+  const container = document.getElementById("missions");
+  container.innerHTML = "";
 
-  const titulo = titleInput.value.trim();
-  const levelMin = parseInt(levelMinInput.value);
-  const levelMax = parseInt(levelMaxInput.value);
-  const missionDate = dateInput.value;
-  const acceptDeadline = deadlineInput.value;
-  const minPlayers = parseInt(minPlayersInput.value);
-  const maxPlayers = parseInt(maxPlayersInput.value);
+  missions.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "mission";
+    div.innerHTML = `
+      <strong>${m.titulo}</strong><br>
+      Nível: ${m.levelMin} - ${m.levelMax}<br>
+      Data da missão: ${m.missionDate}<br>
+      Prazo para aceitar: ${m.acceptDeadline}<br>
+      Participantes: ${m.minPlayers} - ${m.maxPlayers}
+    `;
+    container.appendChild(div);
+  });
+}
 
   // Validação básica
   if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
