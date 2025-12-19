@@ -21,103 +21,107 @@ const auth = getAuth(app);
 // Teste simples
 console.log("Firebase conectado com sucesso");
 
-// Missões Abaixo
+// ============================
+// MISSÕES
+// ============================
 
-// Lista de missões
-let missions = [];
+document.addEventListener("DOMContentLoaded", () => {
 
-// Renderizar missões
-function renderMissions() {
-  const container = document.getElementById("missions");
-  container.innerHTML = "";
+  // Lista de missões
+  let missions = [];
 
-  missions.forEach((m, index) => {
-    const div = document.createElement("div");
-    div.className = "mission";
+  // Renderizar missões
+  function renderMissions() {
+    const container = document.getElementById("missions");
+    container.innerHTML = "";
 
-    // Prazo indeterminado caso vazio
-    const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
+    missions.forEach((m, index) => {
+      const div = document.createElement("div");
+      div.className = "mission";
 
-    div.innerHTML = `
-      <strong>${m.titulo}</strong><br>
-      Nível: ${m.levelMin} - ${m.levelMax}<br>
-      Dia da missão: ${m.missionDay}<br>
-      Prazo para aceitar: ${prazo}<br>
-      Participantes: ${m.minPlayers} - ${m.maxPlayers}
-      <br><button type="button" onclick="acceptMission(${index})">Aceitar Missão</button>
-    `;
+      const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
+      const participantesCount = m.participants.length;
 
-    container.appendChild(div);
-  });
-}
+      div.innerHTML = `
+        <strong>${m.titulo}</strong><br>
+        Nível: ${m.levelMin} - ${m.levelMax}<br>
+        Dia da missão: ${m.missionDay}<br>
+        Prazo para aceitar: ${prazo}<br>
+        Participantes: ${participantesCount} / ${m.maxPlayers}<br>
+        <button type="button" onclick="acceptMission(${index})">Aceitar Missão</button>
+      `;
 
-// Adicionar missão
-function addMission() {
-  const titleInput = document.getElementById("mission-title");
-  const levelMinInput = document.getElementById("level-min");
-  const levelMaxInput = document.getElementById("level-max");
-  const missionDayInput = document.getElementById("mission-day");
-  const deadlineInput = document.getElementById("accept-deadline");
-  const minPlayersInput = document.getElementById("min-players");
-  const maxPlayersInput = document.getElementById("max-players");
-
-  const titulo = titleInput.value.trim();
-  const levelMin = parseInt(levelMinInput.value);
-  const levelMax = parseInt(levelMaxInput.value);
-  const missionDay = missionDayInput.value;
-  const acceptDeadline = deadlineInput.value;
-  const minPlayers = parseInt(minPlayersInput.value);
-  const maxPlayers = parseInt(maxPlayersInput.value);
-
-  // Validação
-  if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
-      || !missionDay || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
-    alert("Por favor, preencha corretamente todos os campos!");
-    return;
+      container.appendChild(div);
+    });
   }
 
-  // Adiciona missão com lista de participantes vazia
-  missions.push({
-    titulo,
-    levelMin,
-    levelMax,
-    missionDay,
-    acceptDeadline,
-    minPlayers,
-    maxPlayers,
-    participants: []
-  });
+  // Adicionar missão
+  function addMission() {
+    const titleInput = document.getElementById("mission-title");
+    const levelMinInput = document.getElementById("level-min");
+    const levelMaxInput = document.getElementById("level-max");
+    const missionDayInput = document.getElementById("mission-day");
+    const deadlineInput = document.getElementById("accept-deadline");
+    const minPlayersInput = document.getElementById("min-players");
+    const maxPlayersInput = document.getElementById("max-players");
 
-  // Limpar campos
-  titleInput.value = "";
-  levelMinInput.value = "";
-  levelMaxInput.value = "";
-  missionDayInput.value = "Segunda-feira";
-  deadlineInput.value = "";
-  minPlayersInput.value = "";
-  maxPlayersInput.value = "";
+    const titulo = titleInput.value.trim();
+    const levelMin = parseInt(levelMinInput.value);
+    const levelMax = parseInt(levelMaxInput.value);
+    const missionDay = missionDayInput.value;
+    const acceptDeadline = deadlineInput.value;
+    const minPlayers = parseInt(minPlayersInput.value);
+    const maxPlayers = parseInt(maxPlayersInput.value);
 
-  renderMissions();
-}
+    if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
+        || !missionDay || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
+      alert("Por favor, preencha corretamente todos os campos!");
+      return;
+    }
 
-// Aceitar missão
-function acceptMission(index) {
-  const mission = missions[index];
+    missions.push({
+      titulo,
+      levelMin,
+      levelMax,
+      missionDay,
+      acceptDeadline,
+      minPlayers,
+      maxPlayers,
+      participants: []
+    });
 
-  // Limite de participantes
-  if (mission.participants.length >= mission.maxPlayers) {
-    alert("Essa missão já atingiu o número máximo de participantes!");
-    return;
+    // Limpar campos
+    titleInput.value = "";
+    levelMinInput.value = "";
+    levelMaxInput.value = "";
+    missionDayInput.value = "Segunda-feira";
+    deadlineInput.value = "";
+    minPlayersInput.value = "";
+    maxPlayersInput.value = "";
+
+    renderMissions();
   }
 
-  // Para teste, adicionamos um usuário fictício
-  mission.participants.push("Usuário");
+  // Aceitar missão
+  window.acceptMission = function(index) {
+    const mission = missions[index];
 
-  alert(`Você aceitou a missão "${mission.titulo}". Total de participantes: ${mission.participants.length}`);
+    if (mission.participants.length >= mission.maxPlayers) {
+      alert("Essa missão já atingiu o número máximo de participantes!");
+      return;
+    }
 
+    // Usuário fictício; depois podemos conectar ao Auth do Firebase
+    mission.participants.push("Usuário");
+
+    alert(`Você aceitou a missão "${mission.titulo}". Total de participantes: ${mission.participants.length}`);
+    renderMissions();
+  }
+
+  // Ativar botão
+  document.getElementById("add-mission").addEventListener("click", addMission);
+
+  // Renderizar inicial
   renderMissions();
-}
 
-// Inicializar
-document.getElementById("add-mission").addEventListener("click", addMission);
-renderMissions();
+});
