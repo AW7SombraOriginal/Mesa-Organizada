@@ -51,31 +51,46 @@ function addMission() {
   const titleInput = document.getElementById("mission-title");
   const levelMinInput = document.getElementById("level-min");
   const levelMaxInput = document.getElementById("level-max");
+  const dateInput = document.getElementById("mission-date");
+  const deadlineInput = document.getElementById("accept-deadline");
+  const minPlayersInput = document.getElementById("min-players");
+  const maxPlayersInput = document.getElementById("max-players");
 
   const titulo = titleInput.value.trim();
   const levelMin = parseInt(levelMinInput.value);
   const levelMax = parseInt(levelMaxInput.value);
+  const missionDate = dateInput.value;
+  const acceptDeadline = deadlineInput.value;
+  const minPlayers = parseInt(minPlayersInput.value);
+  const maxPlayers = parseInt(maxPlayersInput.value);
 
   // Validação básica
-  if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax) {
+  if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
+      || !missionDate || !acceptDeadline
+      || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
     alert("Por favor, preencha corretamente todos os campos!");
     return;
   }
 
   // Adiciona a missão
-  missions.push({ titulo, levelMin, levelMax });
+  missions.push({
+    titulo,
+    levelMin,
+    levelMax,
+    missionDate,
+    acceptDeadline,
+    minPlayers,
+    maxPlayers
+  });
 
-  // Limpa os campos do formulário
+  // Limpa campos
   titleInput.value = "";
   levelMinInput.value = "";
   levelMaxInput.value = "";
+  dateInput.value = "";
+  deadlineInput.value = "";
+  minPlayersInput.value = "";
+  maxPlayersInput.value = "";
 
-  // Atualiza a tela
   renderMissions();
 }
-
-// Ativar o botão
-document.getElementById("add-mission").addEventListener("click", addMission);
-
-// Renderizar missões iniciais
-renderMissions();
