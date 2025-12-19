@@ -8,33 +8,72 @@
   <!-- CSS -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase SDK -->
+  <!-- Script -->
   <script type="module" src="script.js"></script>
 </head>
 <body>
-  <h1>🛡️ Quadro de Missões</h1>
 
-  <div id="new-mission-form">
-    <input type="text" id="mission-title" placeholder="Título da missão">
-    <input type="number" id="level-min" placeholder="Nível mínimo">
-    <input type="number" id="level-max" placeholder="Nível máximo">
-    <select id="mission-day">
-      <option>Segunda-feira</option>
-      <option>Terça-feira</option>
-      <option>Quarta-feira</option>
-      <option>Quinta-feira</option>
-      <option>Sexta-feira</option>
-      <option>Sábado</option>
-      <option>Domingo</option>
-    </select>
-    <input type="date" id="accept-deadline" placeholder="Prazo para aceitar (opcional)">
-    <input type="number" id="min-players" placeholder="Mínimo de participantes">
-    <input type="number" id="max-players" placeholder="Máximo de participantes">
-    <button id="add-mission">Adicionar Missão</button>
+  <h1>📜 Quadro de Missões</h1>
+
+  <!-- ========================= -->
+  <!-- LOGIN / CADASTRO -->
+  <!-- ========================= -->
+  <div id="auth-container">
+    <input type="text" id="auth-name" placeholder="Nome de aventureiro">
+    <input type="email" id="auth-email" placeholder="E-mail">
+    <input type="password" id="auth-password" placeholder="Senha">
+    <button id="register-btn">Criar Conta</button>
+    <button id="login-btn">Entrar</button>
   </div>
 
-  <div id="missions">
-    <!-- Missões serão renderizadas aqui -->
+  <!-- ========================= -->
+  <!-- ÁREA LOGADA -->
+  <!-- ========================= -->
+  <div id="app-container" style="display: none;">
+
+    <p id="welcome-user"></p>
+    <button id="logout-btn">Sair</button>
+
+    <!-- ========================= -->
+    <!-- NOVA MISSÃO -->
+    <!-- ========================= -->
+    <div id="new-mission-form">
+      <input type="text" id="mission-title" placeholder="Título da missão" required>
+
+      <input type="number" id="level-min" placeholder="Nível mínimo" required>
+      <input type="number" id="level-max" placeholder="Nível máximo" required>
+
+      <select id="mission-day" required>
+        <option value="">Dia da missão</option>
+        <option>Segunda-feira</option>
+        <option>Terça-feira</option>
+        <option>Quarta-feira</option>
+        <option>Quinta-feira</option>
+        <option>Sexta-feira</option>
+        <option>Sábado</option>
+        <option>Domingo</option>
+      </select>
+
+      <!-- ⏰ HORÁRIO OBRIGATÓRIO -->
+      <input type="time" id="mission-time" required>
+
+      <!-- Prazo opcional -->
+      <input type="date" id="accept-deadline">
+
+      <input type="number" id="min-players" placeholder="Mínimo de participantes" required>
+      <input type="number" id="max-players" placeholder="Máximo de participantes" required>
+
+      <button id="add-mission">Adicionar Missão</button>
+    </div>
+
+    <!-- ========================= -->
+    <!-- MISSÕES -->
+    <!-- ========================= -->
+    <div id="missions">
+      <!-- Missões renderizadas via JS -->
+    </div>
+
   </div>
+
 </body>
 </html>
