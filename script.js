@@ -1,7 +1,7 @@
 // Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -27,6 +27,21 @@ console.log("Firebase conectado com sucesso");
 document.addEventListener("DOMContentLoaded", () => {
 
   const missionsCollection = collection(db, "missions");
+  let currentUser = null;
+
+  // Autenticação anônima
+  signInAnonymously(auth)
+    .then(() => console.log("Usuário anônimo logado"))
+    .catch((error) => console.error("Erro ao logar anonimamente:", error));
+
+  // Captura usuário atual
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user.uid; // cada usuário tem um UID único
+      console.log("UID do usuário:", currentUser);
+      renderMissions();
+    }
+  });
 
   // Renderizar missões
   async function renderMissions() {
@@ -44,13 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
       const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
       const participantesCount = m.participants ? m.participants.length : 0;
 
+      // Mostra botão de aceitar apenas se o usuário não tiver aceitado ainda
+      const userAccepted = m.participants && m.participants.includes(currentUser);
+      const acceptButton = (!userAccepted && participantesCount < m.maxPlayers)
+        ? `<button type="button" onclick="acceptMission('${id}')">Aceitar Missão</button>`
+        : userAccepted ? "<em>Você já aceitou esta missão</em>" : "<em>Máximo de participantes atingido</em>";
+
       div.innerHTML = `
         <strong>${m.titulo}</strong><br>
         Nível: ${m.levelMin} - ${m.levelMax}<br>
         Dia da missão: ${m.missionDay}<br>
         Prazo para aceitar: ${prazo}<br>
         Participantes: ${participantesCount} / ${m.maxPlayers}<br>
-        <button type="button" onclick="acceptMission('${id}')">Aceitar Missão</button>
+        ${acceptButton}
       `;
 
       container.appendChild(div);
@@ -110,25 +131,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const snapshot = await getDocs(missionsCollection);
     let missionData;
     snapshot.forEach(docSnap => {
-      if (docSnap.id === id) missionData = docSnap.data();
+      if (docSnap.id === id) missionData = { ...docSnap.data(), id: docSnap.id };
     });
 
     if (!missionData) return;
+
+    if (missionData.participants.includes(currentUser)) {
+      alert("Você já aceitou esta missão!");
+      return;
+    }
 
     if (missionData.participants.length >= missionData.maxPlayers) {
       alert("Essa missão já atingiu o número máximo de participantes!");
       return;
     }
 
-    const newParticipants = [...missionData.participants, "Usuário"];
+    const newParticipants = [...missionData.participants, currentUser];
     await updateDoc(missionDoc, { participants: newParticipants });
 
     alert(`Você aceitou a missão "${missionData.titulo}". Total de participantes: ${newParticipants.length}`);
     renderMissions();
   }
 
-  // Inicializar
+  // Ativar botão
   document.getElementById("add-mission").addEventListener("click", addMission);
+
+  // Renderizar inicial
   renderMissions();
 
 });
