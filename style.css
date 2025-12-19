@@ -21,7 +21,66 @@ h1 {
   font-size: 2em;
 }
 
-/* Formulário */
+/* ========================= */
+/* LOGIN / AUTENTICAÇÃO */
+/* ========================= */
+
+#auth-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  max-width: 400px;
+  margin: 0 auto 25px;
+}
+
+#auth-container input,
+#auth-container button {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#auth-container button {
+  background-color: #673ab7;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+#auth-container button:hover {
+  opacity: 0.9;
+}
+
+/* Área logada */
+#app-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#welcome-user {
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+#logout-btn {
+  background-color: #9e9e9e;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* ========================= */
+/* FORMULÁRIO DE MISSÃO */
+/* ========================= */
+
 #new-mission-form {
   background-color: #fff;
   padding: 20px;
@@ -46,42 +105,44 @@ h1 {
   border: none;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 #new-mission-form button:hover {
   background-color: #45a049;
 }
 
-/* Contêiner de missões */
+/* ========================= */
+/* MISSÕES */
+/* ========================= */
+
 #missions {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* Cada missão */
 .mission {
   background-color: #fff;
   padding: 15px;
   border-radius: 10px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   transition: all 0.3s ease, opacity 0.5s ease;
-  opacity: 0;
 }
 
-/* Hover */
 .mission:hover {
   transform: translateY(-2px);
 }
 
-/* Título da missão */
 .mission strong {
   font-size: 1.2em;
   color: #333;
 }
 
-/* Botões */
+.mission small {
+  color: #666;
+}
+
+/* Botões das missões */
 .mission button {
   margin-top: 8px;
   padding: 8px;
@@ -89,13 +150,11 @@ h1 {
   border: none;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.3s ease;
 }
 
 .mission button:nth-of-type(1) {
   background-color: #2196F3;
   color: white;
-  margin-right: 5px;
 }
 
 .mission button:nth-of-type(2) {
@@ -103,7 +162,7 @@ h1 {
   color: white;
 }
 
-/* Mensagens de status */
+/* Mensagens */
 .mission em {
   display: block;
   margin-top: 5px;
@@ -118,20 +177,21 @@ h1 {
   background-color: #fff3e0;
 }
 
-/* Responsivo */
+/* ========================= */
+/* RESPONSIVO */
+/* ========================= */
+
 @media (max-width: 600px) {
-  #new-mission-form input,
-  #new-mission-form select,
-  #new-mission-form button {
-    font-size: 0.95em;
+  h1 {
+    font-size: 1.6em;
+  }
+
+  #auth-container,
+  #app-container {
+    padding: 0 5px;
   }
 
   .mission strong {
     font-size: 1em;
   }
-
-  .mission button {
-    font-size: 0.95em;
-    padding: 6px;
-  }
-    }
+}
