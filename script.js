@@ -1,7 +1,18 @@
 // Firebase SDK
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  doc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // Configuração do Firebase
 const firebaseConfig = {
@@ -33,117 +44,161 @@ document.addEventListener("DOMContentLoaded", () => {
     "Domingo": 7
   };
 
-  signInAnonymously(auth)
-    .then(() => console.log("Usuário anônimo logado"))
-    .catch((err) => console.error(err));
-
+  // Usuário logado (email/senha virá depois)
   onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user.uid;
-      renderMissions();
+    if (!user) {
+      alert("Você precisa estar logado.");
+      return;
     }
+    currentUser = user;
+    renderMissions();
   });
 
+  // =========================
+  // RENDERIZAR MISSÕES
+  // =========================
   async function renderMissions() {
     const container = document.getElementById("missions");
     container.innerHTML = "";
 
     const snapshot = await getDocs(missionsCollection);
     let allMissions = [];
-    snapshot.forEach(docSnap => allMissions.push({ ...docSnap.data(), id: docSnap.id }));
+    snapshot.forEach(docSnap =>
+      allMissions.push({ ...docSnap.data(), id: docSnap.id })
+    );
 
     allMissions.sort((a, b) => dayOrder[a.missionDay] - dayOrder[b.missionDay]);
 
     allMissions.forEach(m => {
       const div = document.createElement("div");
       div.className = "mission";
-      div.style.opacity = 0;
 
-      const prazo = m.acceptDeadline ? m.acceptDeadline : "Prazo indeterminado";
-      const participantesCount = m.participants ? m.participants.length : 0;
-      const userAccepted = m.participants && m.participants.includes(currentUser);
+      const prazo = m.acceptDeadline || "Prazo indeterminado";
+      const participantesCount = m.participants.length;
 
-      const acceptButton = (!userAccepted && participantesCount < m.maxPlayers)
-        ? `<button type="button" onclick="acceptMission('${m.id}')">Aceitar Missão</button>`
-        : userAccepted ? "<em>Você já aceitou esta missão</em>" : "<em>Máximo de participantes atingido</em>";
+      const userAccepted = m.participants.some(p => p.uid === currentUser.uid);
 
-      const concludeButton = `<button type="button" onclick="concludeMission('${m.id}')">Concluir Missão</button>`;
+      const acceptButton =
+        (!userAccepted && participantesCount < m.maxPlayers)
+          ? `<button onclick="acceptMission('${m.id}')">Aceitar Missão</button>`
+          : userAccepted
+            ? "<em>Você já aceitou</em>"
+            : "<em>Missão completa</em>";
+
+      const concludeButton =
+        m.creatorId === currentUser.uid
+          ? `<button onclick="concludeMission('${m.id}')">Concluir Missão</button>`
+          : "";
+
+      const participantNames = m.participants
+        .map(p => p.name)
+        .join(", ");
 
       div.innerHTML = `
         <strong>${m.titulo}</strong><br>
+        <small>Mestre: ${m.creatorName}</small><br><br>
+
         Nível: ${m.levelMin} - ${m.levelMax}<br>
         Dia da missão: ${m.missionDay}<br>
+        Horário: ${m.missionTime}<br>
         Prazo para aceitar: ${prazo}<br>
         Participantes: ${participantesCount} / ${m.maxPlayers}<br>
+        <small>${participantNames}</small><br><br>
+
         ${acceptButton}<br>
         ${concludeButton}
       `;
 
       container.appendChild(div);
-      setTimeout(() => { div.style.opacity = 1; }, 50);
-
-      if (m.acceptDeadline) {
-        const today = new Date();
-        const deadlineDate = new Date(m.acceptDeadline);
-        const diffDays = (deadlineDate - today) / (1000*60*60*24);
-        if (diffDays <= 2) div.classList.add("prazo-proximo");
-      }
     });
   }
 
+  // =========================
+  // ADICIONAR MISSÃO
+  // =========================
   async function addMission() {
     const titulo = document.getElementById("mission-title").value.trim();
-    const levelMin = parseInt(document.getElementById("level-min").value);
-    const levelMax = parseInt(document.getElementById("level-max").value);
+    const levelMin = Number(document.getElementById("level-min").value);
+    const levelMax = Number(document.getElementById("level-max").value);
     const missionDay = document.getElementById("mission-day").value;
+    const missionTime = document.getElementById("mission-time").value;
     const acceptDeadline = document.getElementById("accept-deadline").value;
-    const minPlayers = parseInt(document.getElementById("min-players").value);
-    const maxPlayers = parseInt(document.getElementById("max-players").value);
+    const minPlayers = Number(document.getElementById("min-players").value);
+    const maxPlayers = Number(document.getElementById("max-players").value);
 
-    if (!titulo || isNaN(levelMin) || isNaN(levelMax) || levelMin > levelMax
-        || !missionDay || isNaN(minPlayers) || isNaN(maxPlayers) || minPlayers > maxPlayers) {
-      alert("Preencha todos os campos corretamente!");
+    if (!titulo || !missionTime || levelMin > levelMax || minPlayers > maxPlayers) {
+      alert("Preencha todos os campos corretamente.");
       return;
     }
 
     await addDoc(missionsCollection, {
-      titulo, levelMin, levelMax, missionDay,
+      titulo,
+      levelMin,
+      levelMax,
+      missionDay,
+      missionTime,
       acceptDeadline: acceptDeadline || null,
-      minPlayers, maxPlayers, participants: []
+      minPlayers,
+      maxPlayers,
+
+      creatorId: currentUser.uid,
+      creatorName: currentUser.displayName || currentUser.email,
+      creatorEmail: currentUser.email,
+
+      participants: []
     });
 
-    document.getElementById("mission-title").value = "";
-    document.getElementById("level-min").value = "";
-    document.getElementById("level-max").value = "";
-    document.getElementById("mission-day").value = "Segunda-feira";
-    document.getElementById("accept-deadline").value = "";
-    document.getElementById("min-players").value = "";
-    document.getElementById("max-players").value = "";
-
     renderMissions();
   }
 
+  // =========================
+  // ACEITAR MISSÃO
+  // =========================
   window.acceptMission = async function(id) {
-    const missionDoc = doc(db, "missions", id);
+    const missionRef = doc(db, "missions", id);
     const snapshot = await getDocs(missionsCollection);
-    let mData;
-    snapshot.forEach(docSnap => { if(docSnap.id===id)mData={...docSnap.data(), id:docSnap.id}; });
 
-    if(!mData) return;
-    if(mData.participants.includes(currentUser)) return alert("Você já aceitou!");
-    if(mData.participants.length>=mData.maxPlayers) return alert("Máximo de participantes atingido!");
+    let mission;
+    snapshot.forEach(d => {
+      if (d.id === id) mission = { ...d.data(), id: d.id };
+    });
 
-    await updateDoc(missionDoc, { participants: [...mData.participants,currentUser] });
+    if (!mission) return;
+
+    if (mission.participants.some(p => p.uid === currentUser.uid)) {
+      alert("Você já aceitou essa missão.");
+      return;
+    }
+
+    if (mission.participants.length >= mission.maxPlayers) {
+      alert("Missão cheia.");
+      return;
+    }
+
+    await updateDoc(missionRef, {
+      participants: [
+        ...mission.participants,
+        {
+          uid: currentUser.uid,
+          name: currentUser.displayName || currentUser.email,
+          email: currentUser.email
+        }
+      ]
+    });
+
     renderMissions();
-  }
+  };
 
-  window.concludeMission = async function(id){
-    if(!confirm("Deseja realmente concluir esta missão?")) return;
-    await deleteDoc(doc(db,"missions",id));
+  // =========================
+  // CONCLUIR MISSÃO
+  // =========================
+  window.concludeMission = async function(id) {
+    if (!confirm("Concluir missão?")) return;
+    await deleteDoc(doc(db, "missions", id));
     renderMissions();
-  }
+  };
 
-  document.getElementById("add-mission").addEventListener("click", addMission);
-  renderMissions();
+  document.getElementById("add-mission")
+    .addEventListener("click", addMission);
 
 });
