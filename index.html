@@ -15,10 +15,18 @@
   <input type="number" id="level-min" placeholder="Nível mínimo">
   <input type="number" id="level-max" placeholder="Nível máximo">
 
-  <label for="mission-date">Data da missão:</label>
-  <input type="date" id="mission-date">
+  <label for="mission-day">Dia da missão:</label>
+  <select id="mission-day">
+    <option value="Segunda-feira">Segunda-feira</option>
+    <option value="Terça-feira">Terça-feira</option>
+    <option value="Quarta-feira">Quarta-feira</option>
+    <option value="Quinta-feira">Quinta-feira</option>
+    <option value="Sexta-feira">Sexta-feira</option>
+    <option value="Sábado">Sábado</option>
+    <option value="Domingo">Domingo</option>
+  </select>
 
-  <label for="accept-deadline">Prazo para aceitar:</label>
+  <label for="accept-deadline">Prazo para aceitar (opcional):</label>
   <input type="date" id="accept-deadline">
 
   <input type="number" id="min-players" placeholder="Participantes mínimos">
@@ -26,7 +34,7 @@
 
   <button type="button" id="add-mission">Adicionar Missão</button>
 </div>
-  
+
 <div id="missions"></div>
   
 <!-- Script -->
