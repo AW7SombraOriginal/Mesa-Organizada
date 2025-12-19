@@ -1,4 +1,6 @@
-// Firebase SDK
+// ==============================
+// FIREBASE IMPORTS
+// ==============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
@@ -6,15 +8,22 @@ import {
   addDoc,
   getDocs,
   updateDoc,
+  deleteDoc,
   doc,
-  deleteDoc
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 import {
   getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Configuração do Firebase
+// ==============================
+// FIREBASE CONFIG
+// ==============================
 const firebaseConfig = {
   apiKey: "AIzaSyD6uk2FMJYzurdmGC9pUkGIznCHn19HjCA",
   authDomain: "mesaorganizada-6894b.firebaseapp.com",
@@ -24,110 +33,109 @@ const firebaseConfig = {
   appId: "1:217444951338:web:9b506527cd29f523a92a53"
 };
 
-// Inicialização
+// ==============================
+// INIT
+// ==============================
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+const missionsCollection = collection(db, "missions");
+
+let currentUser = null;
+let currentUserData = null;
+
+// ==============================
+// DOM LOADED
+// ==============================
 document.addEventListener("DOMContentLoaded", () => {
 
-  const missionsCollection = collection(db, "missions");
-  let currentUser = null;
+  const authContainer = document.getElementById("auth-container");
+  const appContainer = document.getElementById("app-container");
+  const welcomeUser = document.getElementById("welcome-user");
 
-  const dayOrder = {
-    "Segunda-feira": 1,
-    "Terça-feira": 2,
-    "Quarta-feira": 3,
-    "Quinta-feira": 4,
-    "Sexta-feira": 5,
-    "Sábado": 6,
-    "Domingo": 7
-  };
-
-  // Usuário logado (email/senha virá depois)
+  // ==============================
+  // AUTH STATE
+  // ==============================
   onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      alert("Você precisa estar logado.");
-      return;
+    if (user) {
+      currentUser = user;
+      currentUserData = {
+        uid: user.uid,
+        email: user.email,
+        name: localStorage.getItem("userName") || "Aventureiro"
+      };
+
+      authContainer.style.display = "none";
+      appContainer.style.display = "block";
+      welcomeUser.innerText = `Bem-vindo, ${currentUserData.name}!`;
+
+      renderMissions();
+    } else {
+      currentUser = null;
+      authContainer.style.display = "block";
+      appContainer.style.display = "none";
     }
-    currentUser = user;
-    renderMissions();
   });
 
-  // =========================
-  // RENDERIZAR MISSÕES
-  // =========================
-  async function renderMissions() {
-    const container = document.getElementById("missions");
-    container.innerHTML = "";
+  // ==============================
+  // REGISTER
+  // ==============================
+  document.getElementById("register-btn").addEventListener("click", async () => {
+    const name = document.getElementById("auth-name").value.trim();
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value.trim();
 
-    const snapshot = await getDocs(missionsCollection);
-    let allMissions = [];
-    snapshot.forEach(docSnap =>
-      allMissions.push({ ...docSnap.data(), id: docSnap.id })
-    );
+    if (!name || !email || !password) {
+      alert("Preencha todos os campos!");
+      return;
+    }
 
-    allMissions.sort((a, b) => dayOrder[a.missionDay] - dayOrder[b.missionDay]);
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      localStorage.setItem("userName", name);
+    } catch (error) {
+      alert(error.message);
+    }
+  });
 
-    allMissions.forEach(m => {
-      const div = document.createElement("div");
-      div.className = "mission";
+  // ==============================
+  // LOGIN
+  // ==============================
+  document.getElementById("login-btn").addEventListener("click", async () => {
+    const email = document.getElementById("auth-email").value.trim();
+    const password = document.getElementById("auth-password").value.trim();
 
-      const prazo = m.acceptDeadline || "Prazo indeterminado";
-      const participantesCount = m.participants.length;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      alert("E-mail ou senha inválidos.");
+    }
+  });
 
-      const userAccepted = m.participants.some(p => p.uid === currentUser.uid);
+  // ==============================
+  // LOGOUT
+  // ==============================
+  document.getElementById("logout-btn").addEventListener("click", async () => {
+    await signOut(auth);
+  });
 
-      const acceptButton =
-        (!userAccepted && participantesCount < m.maxPlayers)
-          ? `<button onclick="acceptMission('${m.id}')">Aceitar Missão</button>`
-          : userAccepted
-            ? "<em>Você já aceitou</em>"
-            : "<em>Missão completa</em>";
+  // ==============================
+  // ADD MISSION
+  // ==============================
+  document.getElementById("add-mission").addEventListener("click", async () => {
 
-      const concludeButton =
-        m.creatorId === currentUser.uid
-          ? `<button onclick="concludeMission('${m.id}')">Concluir Missão</button>`
-          : "";
-
-      const participantNames = m.participants
-        .map(p => p.name)
-        .join(", ");
-
-      div.innerHTML = `
-        <strong>${m.titulo}</strong><br>
-        <small>Mestre: ${m.creatorName}</small><br><br>
-
-        Nível: ${m.levelMin} - ${m.levelMax}<br>
-        Dia da missão: ${m.missionDay}<br>
-        Horário: ${m.missionTime}<br>
-        Prazo para aceitar: ${prazo}<br>
-        Participantes: ${participantesCount} / ${m.maxPlayers}<br>
-        <small>${participantNames}</small><br><br>
-
-        ${acceptButton}<br>
-        ${concludeButton}
-      `;
-
-      container.appendChild(div);
-    });
-  }
-
-  // =========================
-  // ADICIONAR MISSÃO
-  // =========================
-  async function addMission() {
     const titulo = document.getElementById("mission-title").value.trim();
     const levelMin = Number(document.getElementById("level-min").value);
     const levelMax = Number(document.getElementById("level-max").value);
     const missionDay = document.getElementById("mission-day").value;
     const missionTime = document.getElementById("mission-time").value;
-    const acceptDeadline = document.getElementById("accept-deadline").value;
+    const acceptDeadline = document.getElementById("accept-deadline").value || null;
     const minPlayers = Number(document.getElementById("min-players").value);
     const maxPlayers = Number(document.getElementById("max-players").value);
 
-    if (!titulo || !missionTime || levelMin > levelMax || minPlayers > maxPlayers) {
-      alert("Preencha todos os campos corretamente.");
+    if (!titulo || levelMin > levelMax || minPlayers > maxPlayers || !missionDay || !missionTime) {
+      alert("Preencha os dados corretamente.");
       return;
     }
 
@@ -137,68 +145,105 @@ document.addEventListener("DOMContentLoaded", () => {
       levelMax,
       missionDay,
       missionTime,
-      acceptDeadline: acceptDeadline || null,
+      acceptDeadline,
       minPlayers,
       maxPlayers,
-
-      creatorId: currentUser.uid,
-      creatorName: currentUser.displayName || currentUser.email,
-      creatorEmail: currentUser.email,
-
-      participants: []
+      participants: [],
+      creator: currentUserData,
+      createdAt: serverTimestamp()
     });
 
+    document.getElementById("new-mission-form").reset();
     renderMissions();
-  }
-
-  // =========================
-  // ACEITAR MISSÃO
-  // =========================
-  window.acceptMission = async function(id) {
-    const missionRef = doc(db, "missions", id);
-    const snapshot = await getDocs(missionsCollection);
-
-    let mission;
-    snapshot.forEach(d => {
-      if (d.id === id) mission = { ...d.data(), id: d.id };
-    });
-
-    if (!mission) return;
-
-    if (mission.participants.some(p => p.uid === currentUser.uid)) {
-      alert("Você já aceitou essa missão.");
-      return;
-    }
-
-    if (mission.participants.length >= mission.maxPlayers) {
-      alert("Missão cheia.");
-      return;
-    }
-
-    await updateDoc(missionRef, {
-      participants: [
-        ...mission.participants,
-        {
-          uid: currentUser.uid,
-          name: currentUser.displayName || currentUser.email,
-          email: currentUser.email
-        }
-      ]
-    });
-
-    renderMissions();
-  };
-
-  // =========================
-  // CONCLUIR MISSÃO
-  // =========================
-  window.concludeMission = async function(id) {
-    if (!confirm("Concluir missão?")) return;
-    await deleteDoc(doc(db, "missions", id));
-    renderMissions();
-  };
-
-  document.getElementById("add-mission")
-    .addEventListener("click", addMission);
+  });
 
 });
+
+// ==============================
+// RENDER MISSIONS
+// ==============================
+async function renderMissions() {
+  const container = document.getElementById("missions");
+  container.innerHTML = "";
+
+  const snapshot = await getDocs(missionsCollection);
+
+  snapshot.forEach(docSnap => {
+    const m = { ...docSnap.data(), id: docSnap.id };
+
+    const div = document.createElement("div");
+    div.className = "mission";
+
+    const prazo = m.acceptDeadline || "Prazo indeterminado";
+    const participantsCount = m.participants.length;
+
+    const alreadyJoined = m.participants.some(p => p.uid === currentUser.uid);
+
+    let acceptButton = "";
+    if (!alreadyJoined && participantsCount < m.maxPlayers) {
+      acceptButton = `<button onclick="acceptMission('${m.id}')">Aceitar Missão</button>`;
+    } else if (alreadyJoined) {
+      acceptButton = `<em>Você já aceitou</em>`;
+    } else {
+      acceptButton = `<em>Missão cheia</em>`;
+    }
+
+    let concludeButton = "";
+    if (m.creator.uid === currentUser.uid) {
+      concludeButton = `<button onclick="concludeMission('${m.id}')">Concluir Missão</button>`;
+    }
+
+    const participantsNames = m.participants.map(p => `<small>${p.name}</small>`).join(", ");
+
+    div.innerHTML = `
+      <strong>${m.titulo}</strong><br>
+      Mestre: ${m.creator.name}<br>
+      Nível: ${m.levelMin} - ${m.levelMax}<br>
+      Dia: ${m.missionDay} às ${m.missionTime}<br>
+      Prazo: ${prazo}<br>
+      Participantes: ${participantsCount} / ${m.maxPlayers}<br>
+      ${participantsNames}<br><br>
+      ${acceptButton}
+      ${concludeButton}
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+// ==============================
+// ACCEPT MISSION
+// ==============================
+window.acceptMission = async function (id) {
+  const missionDoc = doc(db, "missions", id);
+  const snapshot = await getDocs(missionsCollection);
+
+  let mission;
+  snapshot.forEach(docSnap => {
+    if (docSnap.id === id) mission = { ...docSnap.data(), id: docSnap.id };
+  });
+
+  if (!mission) return;
+
+  if (mission.participants.some(p => p.uid === currentUser.uid)) return;
+
+  if (mission.participants.length >= mission.maxPlayers) {
+    alert("Missão cheia.");
+    return;
+  }
+
+  await updateDoc(missionDoc, {
+    participants: [...mission.participants, currentUserData]
+  });
+
+  renderMissions();
+};
+
+// ==============================
+// CONCLUDE MISSION
+// ==============================
+window.concludeMission = async function (id) {
+  if (!confirm("Deseja concluir esta missão?")) return;
+  await deleteDoc(doc(db, "missions", id));
+  renderMissions();
+};
