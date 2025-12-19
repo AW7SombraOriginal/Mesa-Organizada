@@ -1,18 +1,137 @@
-body {
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
-  background: #1e1e1e;
-  color: #eee;
-  padding: 20px;
 }
 
+/* Body */
+body {
+  background-color: #f0f2f5;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Título */
 h1 {
   text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 2em;
 }
 
-.mission {
-  border: 1px solid #444;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  background-color: #2e2e2e;
+/* Formulário */
+#new-mission-form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
 }
+
+#new-mission-form input,
+#new-mission-form select,
+#new-mission-form button {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+#new-mission-form button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#new-mission-form button:hover {
+  background-color: #45a049;
+}
+
+/* Contêiner de missões */
+#missions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Cada missão */
+.mission {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease, opacity 0.5s ease;
+  opacity: 0;
+}
+
+/* Hover */
+.mission:hover {
+  transform: translateY(-2px);
+}
+
+/* Título da missão */
+.mission strong {
+  font-size: 1.2em;
+  color: #333;
+}
+
+/* Botões */
+.mission button {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.mission button:nth-of-type(1) {
+  background-color: #2196F3;
+  color: white;
+  margin-right: 5px;
+}
+
+.mission button:nth-of-type(2) {
+  background-color: #f44336;
+  color: white;
+}
+
+/* Mensagens de status */
+.mission em {
+  display: block;
+  margin-top: 5px;
+  color: #555;
+  font-style: normal;
+  font-size: 0.95em;
+}
+
+/* Missões próximas do prazo */
+.mission.prazo-proximo {
+  border: 2px solid #ff9800;
+  background-color: #fff3e0;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+  #new-mission-form input,
+  #new-mission-form select,
+  #new-mission-form button {
+    font-size: 0.95em;
+  }
+
+  .mission strong {
+    font-size: 1em;
+  }
+
+  .mission button {
+    font-size: 0.95em;
+    padding: 6px;
+  }
+    }
