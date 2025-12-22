@@ -54,6 +54,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const appContainer = document.getElementById("app-container");
   const welcomeUser = document.getElementById("welcome-user");
 
+  const registerBtn = document.getElementById("register-btn");
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const addMissionBtn = document.getElementById("add-mission");
+
   // ==============================
   // AUTH STATE
   // ==============================
@@ -81,81 +86,89 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==============================
   // REGISTER
   // ==============================
-  document.getElementById("register-btn").addEventListener("click", async () => {
-    const name = document.getElementById("auth-name").value.trim();
-    const email = document.getElementById("auth-email").value.trim();
-    const password = document.getElementById("auth-password").value.trim();
+  if (registerBtn) {
+    registerBtn.addEventListener("click", async () => {
+      const name = document.getElementById("auth-name").value.trim();
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
 
-    if (!name || !email || !password) {
-      alert("Preencha todos os campos!");
-      return;
-    }
+      if (!name || !email || !password) {
+        alert("Preencha todos os campos!");
+        return;
+      }
 
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      localStorage.setItem("userName", name);
-    } catch (error) {
-      alert(error.message);
-    }
-  });
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        localStorage.setItem("userName", name);
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  }
 
   // ==============================
   // LOGIN
   // ==============================
-  document.getElementById("login-btn").addEventListener("click", async () => {
-    const email = document.getElementById("auth-email").value.trim();
-    const password = document.getElementById("auth-password").value.trim();
+  if (loginBtn) {
+    loginBtn.addEventListener("click", async () => {
+      const email = document.getElementById("auth-email").value.trim();
+      const password = document.getElementById("auth-password").value.trim();
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert("E-mail ou senha inválidos.");
-    }
-  });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert("E-mail ou senha inválidos.");
+      }
+    });
+  }
 
   // ==============================
   // LOGOUT
   // ==============================
-  document.getElementById("logout-btn").addEventListener("click", async () => {
-    await signOut(auth);
-  });
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+  }
 
   // ==============================
   // ADD MISSION
   // ==============================
-  document.getElementById("add-mission").addEventListener("click", async () => {
+  if (addMissionBtn) {
+    addMissionBtn.addEventListener("click", async () => {
 
-    const titulo = document.getElementById("mission-title").value.trim();
-    const levelMin = Number(document.getElementById("level-min").value);
-    const levelMax = Number(document.getElementById("level-max").value);
-    const missionDay = document.getElementById("mission-day").value;
-    const missionTime = document.getElementById("mission-time").value;
-    const acceptDeadline = document.getElementById("accept-deadline").value || null;
-    const minPlayers = Number(document.getElementById("min-players").value);
-    const maxPlayers = Number(document.getElementById("max-players").value);
+      const titulo = document.getElementById("mission-title").value.trim();
+      const levelMin = Number(document.getElementById("level-min").value);
+      const levelMax = Number(document.getElementById("level-max").value);
+      const missionDay = document.getElementById("mission-day").value;
+      const missionTime = document.getElementById("mission-time").value;
+      const acceptDeadline = document.getElementById("accept-deadline").value || null;
+      const minPlayers = Number(document.getElementById("min-players").value);
+      const maxPlayers = Number(document.getElementById("max-players").value);
 
-    if (!titulo || levelMin > levelMax || minPlayers > maxPlayers || !missionDay || !missionTime) {
-      alert("Preencha os dados corretamente.");
-      return;
-    }
+      if (!titulo || levelMin > levelMax || minPlayers > maxPlayers || !missionDay || !missionTime) {
+        alert("Preencha os dados corretamente.");
+        return;
+      }
 
-    await addDoc(missionsCollection, {
-      titulo,
-      levelMin,
-      levelMax,
-      missionDay,
-      missionTime,
-      acceptDeadline,
-      minPlayers,
-      maxPlayers,
-      participants: [],
-      creator: currentUserData,
-      createdAt: serverTimestamp()
+      await addDoc(missionsCollection, {
+        titulo,
+        levelMin,
+        levelMax,
+        missionDay,
+        missionTime,
+        acceptDeadline,
+        minPlayers,
+        maxPlayers,
+        participants: [],
+        creator: currentUserData,
+        createdAt: serverTimestamp()
+      });
+
+      document.getElementById("new-mission-form").reset();
+      renderMissions();
     });
-
-    document.getElementById("new-mission-form").reset();
-    renderMissions();
-  });
+  }
 
 });
 
@@ -176,7 +189,6 @@ async function renderMissions() {
 
     const prazo = m.acceptDeadline || "Prazo indeterminado";
     const participantsCount = m.participants.length;
-
     const alreadyJoined = m.participants.some(p => p.uid === currentUser.uid);
 
     let acceptButton = "";
@@ -224,13 +236,8 @@ window.acceptMission = async function (id) {
   });
 
   if (!mission) return;
-
   if (mission.participants.some(p => p.uid === currentUser.uid)) return;
-
-  if (mission.participants.length >= mission.maxPlayers) {
-    alert("Missão cheia.");
-    return;
-  }
+  if (mission.participants.length >= mission.maxPlayers) return alert("Missão cheia.");
 
   await updateDoc(missionDoc, {
     participants: [...mission.participants, currentUserData]
