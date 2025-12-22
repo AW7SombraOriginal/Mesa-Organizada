@@ -1,197 +1,97 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
+/* Adicione ou substitua estas partes no seu CSS */
 
-/* Body */
-body {
-  background-color: #f0f2f5;
-  padding: 20px;
-  min-height: 100vh;
-}
-
-/* Título */
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 2em;
-}
-
-/* ========================= */
-/* LOGIN / AUTENTICAÇÃO */
-/* ========================= */
-
-#auth-container {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  max-width: 400px;
-  margin: 0 auto 25px;
-}
-
-#auth-container input,
-#auth-container button {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-#auth-container button {
-  background-color: #673ab7;
-  color: white;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
-
-#auth-container button:hover {
-  opacity: 0.9;
-}
-
-/* Área logada */
-#app-container {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-#welcome-user {
-  margin-bottom: 10px;
-  font-weight: bold;
-  color: #333;
-}
-
-#logout-btn {
-  background-color: #9e9e9e;
-  color: white;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
-/* ========================= */
-/* FORMULÁRIO DE MISSÃO */
-/* ========================= */
-
-#new-mission-form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  margin-bottom: 25px;
-}
-
-#new-mission-form input,
-#new-mission-form select,
-#new-mission-form button {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-#new-mission-form button {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-#new-mission-form button:hover {
-  background-color: #45a049;
-}
-
-/* ========================= */
-/* MISSÕES */
-/* ========================= */
-
-#missions {
+/* Layout Geral */
+.row {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  gap: 10px;
+}
+.row input, .row select {
+  flex: 1;
 }
 
+/* Área de Meus Personagens */
+#my-characters-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.char-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+#characters-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.char-card {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9em;
+}
+
+.char-card.status-free {
+  background-color: #e8f5e9; /* Verde claro */
+  border-left: 4px solid #4CAF50;
+}
+
+.char-card.status-busy {
+  background-color: #ffebee; /* Vermelho claro */
+  border-left: 4px solid #f44336;
+  opacity: 0.8;
+}
+
+/* Missões */
 .mission {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: all 0.3s ease, opacity 0.5s ease;
+  border-left: 5px solid #673ab7; /* Cor temática roxa */
+  position: relative;
 }
 
-.mission:hover {
-  transform: translateY(-2px);
-}
-
-.mission strong {
-  font-size: 1.2em;
-  color: #333;
-}
-
-.mission small {
-  color: #666;
-}
-
-/* Botões das missões */
-.mission button {
-  margin-top: 8px;
+.participants-list {
+  background: #fafafa;
   padding: 8px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
+  margin: 10px 0;
+  border-radius: 6px;
 }
 
-.mission button:nth-of-type(1) {
+.badge {
+  display: inline-block;
+  background: #ddd;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-right: 5px;
+  margin-bottom: 3px;
+}
+
+/* Botões de Ação na Missão */
+.accept-area {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.accept-area select {
+  flex: 2;
+  padding: 5px;
+}
+
+.btn-accept {
+  flex: 1;
   background-color: #2196F3;
   color: white;
 }
 
-.mission button:nth-of-type(2) {
-  background-color: #f44336;
+.btn-conclude {
+  width: 100%;
+  background-color: #ff9800; /* Laranja */
   color: white;
-}
-
-/* Mensagens */
-.mission em {
-  display: block;
-  margin-top: 5px;
-  color: #555;
-  font-style: normal;
-  font-size: 0.95em;
-}
-
-/* Missões próximas do prazo */
-.mission.prazo-proximo {
-  border: 2px solid #ff9800;
-  background-color: #fff3e0;
-}
-
-/* ========================= */
-/* RESPONSIVO */
-/* ========================= */
-
-@media (max-width: 600px) {
-  h1 {
-    font-size: 1.6em;
-  }
-
-  #auth-container,
-  #app-container {
-    padding: 0 5px;
-  }
-
-  .mission strong {
-    font-size: 1em;
-  }
 }
