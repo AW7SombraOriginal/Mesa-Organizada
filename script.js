@@ -10,7 +10,9 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-  serverTimestamp
+  serverTimestamp,
+  getDoc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import {
@@ -46,6 +48,15 @@ let currentUser = null;
 let currentUserData = null;
 
 // ==============================
+// LOAD USER DATA
+// ==============================
+async function loadUserData(uid) {
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
+}
+
+// ==============================
 // DOM LOADED
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
@@ -62,16 +73,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==============================
   // AUTH STATE
   // ==============================
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
 
-      const savedName = localStorage.getItem(`userName_${user.uid}`);
+      const userData = await loadUserData(user.uid);
+      if (!userData) {
+        alert("Erro ao carregar dados do usuário.");
+        await signOut(auth);
+        return;
+      }
 
       currentUserData = {
         uid: user.uid,
         email: user.email,
-        name: savedName || "Aventureiro"
+        name: userData.name
       };
 
       authContainer.style.display = "none";
@@ -102,7 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
-      localStorage.setItem(`userName_${cred.user.uid}`, name);
+
+      await setDoc(doc(db, "users", cred.user.uid), {
+        name,
+        email,
+        createdAt: serverTimestamp()
+      });
+
     } catch (error) {
       alert(error.message);
     }
@@ -135,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addMissionBtn?.addEventListener("click", async () => {
 
     if (!currentUserData) {
-      alert("Usuário ainda não carregado. Aguarde um instante.");
+      alert("Usuário ainda não carregado.");
       return;
     }
 
@@ -163,7 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
       minPlayers,
       maxPlayers,
       participants: [],
-      creator: currentUserData,
+      creatorUid: currentUserData.uid,
+      creatorName: currentUserData.name,
       createdAt: serverTimestamp()
     });
 
@@ -204,7 +227,7 @@ async function renderMissions() {
     }
 
     let concludeButton = "";
-    if (m.creator.uid === currentUser.uid) {
+    if (m.creatorUid === currentUser.uid) {
       concludeButton = `<button onclick="concludeMission('${m.id}')">Concluir Missão</button>`;
     }
 
@@ -212,7 +235,7 @@ async function renderMissions() {
 
     div.innerHTML = `
       <strong>${m.titulo}</strong><br>
-      Mestre: ${m.creator.name}<br>
+      Mestre: ${m.creatorName}<br>
       Nível: ${m.levelMin} - ${m.levelMax}<br>
       Dia: ${m.missionDay} às ${m.missionTime}<br>
       Prazo: ${prazo}<br>
