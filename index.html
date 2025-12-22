@@ -1,94 +1,66 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quadro de Missões</title>
+<div id="app-container" style="display: none;">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Script -->
-  <script type="module" src="script.js"></script>
-</head>
-<body>
-
-  <h1>📜 Quadro de Missões</h1>
-
-  <!-- ========================= -->
-  <!-- LOGIN / CADASTRO -->
-  <!-- ========================= -->
-  <div id="auth-container">
-    <input type="text" id="auth-name" placeholder="Nome de aventureiro">
-
-    <input type="email" id="auth-email" placeholder="E-mail">
-
-    <input type="password" id="auth-password" placeholder="Senha">
-
-    <button type="button" id="register-btn">
-      Criar Conta
-    </button>
-
-    <button type="button" id="login-btn">
-      Entrar
-    </button>
+  <div class="header-user">
+    <p id="welcome-user"></p>
+    <button type="button" id="logout-btn">Sair</button>
   </div>
 
-  <!-- ========================= -->
-  <!-- ÁREA LOGADA -->
-  <!-- ========================= -->
-  <div id="app-container" style="display: none;">
+  <section id="my-characters-section">
+    <h2>🦸 Meus Personagens</h2>
+    
+    <div class="char-form">
+      <input type="text" id="char-name" placeholder="Nome do Personagem">
+      <input type="text" id="char-class" placeholder="Classe (ex: Paladino)">
+      <input type="number" id="char-level" placeholder="Nível">
+      <button id="create-char-btn">Criar Personagem</button>
+    </div>
 
-    <p id="welcome-user"></p>
+    <div id="characters-list">
+      </div>
+  </section>
 
-    <button type="button" id="logout-btn">
-      Sair
-    </button>
+  <hr>
 
-    <!-- ========================= -->
-    <!-- NOVA MISSÃO -->
-    <!-- ========================= -->
+  <section id="create-mission-section">
+    <h2>⚔️ Criar Nova Missão</h2>
     <div id="new-mission-form">
-
       <input type="text" id="mission-title" placeholder="Título da missão" required>
+      
+      <div class="row">
+        <input type="number" id="level-min" placeholder="Nível Mín." required>
+        <input type="number" id="level-max" placeholder="Nível Máx." required>
+      </div>
 
-      <input type="number" id="level-min" placeholder="Nível mínimo" required>
-      <input type="number" id="level-max" placeholder="Nível máximo" required>
+      <div class="row">
+        <select id="mission-day" required>
+          <option value="">Dia da semana</option>
+          <option>Segunda-feira</option>
+          <option>Terça-feira</option>
+          <option>Quarta-feira</option>
+          <option>Quinta-feira</option>
+          <option>Sexta-feira</option>
+          <option>Sábado</option>
+          <option>Domingo</option>
+        </select>
+        <input type="time" id="mission-time" required>
+      </div>
 
-      <select id="mission-day" required>
-        <option value="">Dia da missão</option>
-        <option>Segunda-feira</option>
-        <option>Terça-feira</option>
-        <option>Quarta-feira</option>
-        <option>Quinta-feira</option>
-        <option>Sexta-feira</option>
-        <option>Sábado</option>
-        <option>Domingo</option>
-      </select>
-
-      <!-- ⏰ HORÁRIO OBRIGATÓRIO -->
-      <input type="time" id="mission-time" required>
-
-      <!-- Prazo opcional -->
+      <label>Prazo para aceitar (Opcional):</label>
       <input type="date" id="accept-deadline">
 
-      <input type="number" id="min-players" placeholder="Mínimo de participantes" required>
-      <input type="number" id="max-players" placeholder="Máximo de participantes" required>
+      <div class="row">
+        <input type="number" id="min-players" placeholder="Mín. Jogadores" required>
+        <input type="number" id="max-players" placeholder="Máx. Jogadores" required>
+      </div>
 
-      <button type="button" id="add-mission">
-        Adicionar Missão
-      </button>
-
+      <button type="button" id="add-mission">Postar Missão</button>
     </div>
+  </section>
 
-    <!-- ========================= -->
-    <!-- MISSÕES -->
-    <!-- ========================= -->
+  <section id="board-section">
+    <h2>📜 Quadro de Missões</h2>
     <div id="missions">
-      <!-- Missões renderizadas via JS -->
-    </div>
+      </div>
+  </section>
 
-  </div>
-
-</body>
-<
+</div>
