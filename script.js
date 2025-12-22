@@ -354,3 +354,4 @@ window.concludeMission = async function(missionId) {
     alert("Erro ao concluir.");
   }
 };
+      
