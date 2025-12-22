@@ -1,66 +1,98 @@
-<div id="app-container" style="display: none;">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadro de Missões da Guilda</title>
 
-  <div class="header-user">
-    <p id="welcome-user"></p>
-    <button type="button" id="logout-btn">Sair</button>
+  <link rel="stylesheet" href="style.css">
+
+  <script type="module" src="script.js"></script>
+</head>
+<body>
+
+  <h1>📜 Quadro de Missões</h1>
+
+  <div id="auth-container">
+    <h2>Identifique-se, Aventureiro</h2>
+    
+    <input type="text" id="auth-name" placeholder="Seu Nome (Jogador)">
+    <input type="email" id="auth-email" placeholder="E-mail">
+    <input type="password" id="auth-password" placeholder="Senha">
+
+    <button type="button" id="register-btn">Criar Conta</button>
+    <button type="button" id="login-btn">Entrar</button>
   </div>
 
-  <section id="my-characters-section">
-    <h2>🦸 Meus Personagens</h2>
-    
-    <div class="char-form">
-      <input type="text" id="char-name" placeholder="Nome do Personagem">
-      <input type="text" id="char-class" placeholder="Classe (ex: Paladino)">
-      <input type="number" id="char-level" placeholder="Nível">
-      <button id="create-char-btn">Criar Personagem</button>
+  <div id="app-container" style="display: none;">
+
+    <div class="header-user">
+      <p id="welcome-user"></p>
+      <button type="button" id="logout-btn">Sair</button>
     </div>
 
-    <div id="characters-list">
-      </div>
-  </section>
-
-  <hr>
-
-  <section id="create-mission-section">
-    <h2>⚔️ Criar Nova Missão</h2>
-    <div id="new-mission-form">
-      <input type="text" id="mission-title" placeholder="Título da missão" required>
+    <section id="my-characters-section">
+      <h2>🦸 Meus Personagens</h2>
       
-      <div class="row">
-        <input type="number" id="level-min" placeholder="Nível Mín." required>
-        <input type="number" id="level-max" placeholder="Nível Máx." required>
+      <div class="char-form">
+        <input type="text" id="char-name" placeholder="Nome do Personagem">
+        <input type="text" id="char-class" placeholder="Classe (ex: Paladino)">
+        <input type="number" id="char-level" placeholder="Nível">
+        <button id="create-char-btn">Criar Personagem</button>
       </div>
 
-      <div class="row">
-        <select id="mission-day" required>
-          <option value="">Dia da semana</option>
-          <option>Segunda-feira</option>
-          <option>Terça-feira</option>
-          <option>Quarta-feira</option>
-          <option>Quinta-feira</option>
-          <option>Sexta-feira</option>
-          <option>Sábado</option>
-          <option>Domingo</option>
-        </select>
-        <input type="time" id="mission-time" required>
+      <div id="characters-list">
+        </div>
+    </section>
+
+    <hr>
+
+    <section id="create-mission-section">
+      <h2>⚔️ Criar Nova Missão</h2>
+      
+      <div id="new-mission-form">
+        <label>Detalhes da Aventura</label>
+        <input type="text" id="mission-title" placeholder="Título da missão" required>
+        
+        <div class="row">
+          <input type="number" id="level-min" placeholder="Nível Mín." required>
+          <input type="number" id="level-max" placeholder="Nível Máx." required>
+        </div>
+
+        <div class="row">
+          <select id="mission-day" required>
+            <option value="">Dia da semana</option>
+            <option>Segunda-feira</option>
+            <option>Terça-feira</option>
+            <option>Quarta-feira</option>
+            <option>Quinta-feira</option>
+            <option>Sexta-feira</option>
+            <option>Sábado</option>
+            <option>Domingo</option>
+          </select>
+          <input type="time" id="mission-time" required>
+        </div>
+
+        <label>Prazo para inscrição (Opcional):</label>
+        <input type="date" id="accept-deadline">
+
+        <label>Vagas</label>
+        <div class="row">
+          <input type="number" id="min-players" placeholder="Mín. Jogadores" required>
+          <input type="number" id="max-players" placeholder="Máx. Jogadores" required>
+        </div>
+
+        <button type="button" id="add-mission">Postar Missão</button>
       </div>
+    </section>
 
-      <label>Prazo para aceitar (Opcional):</label>
-      <input type="date" id="accept-deadline">
+    <section id="board-section">
+      <h2>📜 Mural de Aventuras</h2>
+      <div id="missions">
+        </div>
+    </section>
 
-      <div class="row">
-        <input type="number" id="min-players" placeholder="Mín. Jogadores" required>
-        <input type="number" id="max-players" placeholder="Máx. Jogadores" required>
-      </div>
+  </div>
 
-      <button type="button" id="add-mission">Postar Missão</button>
-    </div>
-  </section>
-
-  <section id="board-section">
-    <h2>📜 Quadro de Missões</h2>
-    <div id="missions">
-      </div>
-  </section>
-
-</div>
+</body>
+</html>
