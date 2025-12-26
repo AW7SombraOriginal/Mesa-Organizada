@@ -1,4 +1,3 @@
-
 // ==============================
 // FIREBASE IMPORTS
 // ==============================
@@ -11,10 +10,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // ==============================
-// CONFIGURAÇÃO (MANTENHA A SUA)
+// CONFIGURAÇÃO
 // ==============================
 const firebaseConfig = {
-  apiKey: "AIzaSyD6uk2FMJYzurdmGC9pUkGIznCHn19HjCA", // Use suas credenciais reais
+  apiKey: "AIzaSyD6uk2FMJYzurdmGC9pUkGIznCHn19HjCA",
   authDomain: "mesaorganizada-6894b.firebaseapp.com",
   projectId: "mesaorganizada-6894b",
   storageBucket: "mesaorganizada-6894b.firebasestorage.app",
@@ -76,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const userData = await loadUserData(user.uid);
       
       if (!userData) {
-        // Fallback se o user criou conta mas não salvou no Firestore por erro
         currentUserData = { uid: user.uid, email: user.email, name: "Aventureiro" };
       } else {
         currentUserData = { ...userData, uid: user.uid };
@@ -136,7 +134,7 @@ async function loginUser() {
 }
 
 // ==============================
-// PERSONAGENS (NOVO)
+// PERSONAGENS
 // ==============================
 async function createCharacter() {
   const name = document.getElementById("char-name").value.trim();
@@ -152,7 +150,6 @@ async function createCharacter() {
       currentMissionId: null
     });
     
-    // Limpar campos e recarregar
     document.getElementById("char-name").value = "";
     document.getElementById("char-class").value = "";
     document.getElementById("char-level").value = "";
@@ -181,7 +178,7 @@ function renderCharacters() {
 }
 
 // ==============================
-// MISSÕES
+// MISSÕES (MODIFICADO PARA DEBUG)
 // ==============================
 async function createMission() {
   const titulo = document.getElementById("mission-title").value.trim();
@@ -198,7 +195,7 @@ async function createMission() {
   await addDoc(missionsCollection, {
     titulo, levelMin, levelMax, missionDay, missionTime, acceptDeadline,
     minPlayers, maxPlayers,
-    participants: [], // Array de objetos { charId, charName, userUid }
+    participants: [],
     creatorUid: currentUser.uid,
     creatorName: currentUserData.name,
     status: "Aberto",
@@ -226,39 +223,65 @@ async function renderMissions() {
     const isFull = m.participants.length >= m.maxPlayers;
     const isCreator = m.creatorUid === currentUser.uid;
 
-    // Lógica do botão de aceitar
+    // Converte Níveis para Número para garantir comparação correta
+    const mMin = Number(m.levelMin);
+    const mMax = Number(m.levelMax);
+
     let actionArea = "";
 
     if (isCreator) {
       actionArea = `<button class="btn-conclude" onclick="concludeMission('${m.id}')">Concluir Missão</button>`;
+    
     } else if (userAlreadyIn) {
-      // Se o usuário já tem um personagem nessa missão, mostra botão de sair
-      // (Para simplificar, deixarei apenas texto, mas você pode implementar 'sair')
       actionArea = `<em>Seu personagem já está inscrito.</em>`;
-    } else if (!isFull) {
-      // Dropdown para escolher personagem
-      // Filtra personagens: Deve estar Disponível E dentro do range de nível
-      const validChars = userCharacters.filter(c => 
-        c.status === "Disponível" && 
-        c.level >= m.levelMin && 
-        c.level <= m.levelMax
-      );
-
-      if (validChars.length > 0) {
-        let options = validChars.map(c => `<option value="${c.id}">${c.name} (Lv.${c.level})</option>`).join("");
-        actionArea = `
-          <div class="accept-area">
-            <select id="select-char-${m.id}">
-              ${options}
-            </select>
-            <button class="btn-accept" onclick="acceptMission('${m.id}')">Aceitar</button>
-          </div>
-        `;
-      } else {
-        actionArea = `<em style="color:red">Você não tem personagens disponíveis neste nível (${m.levelMin}-${m.levelMax}).</em>`;
-      }
-    } else {
+    
+    } else if (isFull) {
       actionArea = `<em>Missão Cheia</em>`;
+    
+    } else {
+      // LOGICA DE DEBUG: Mostra todos os personagens e explica se não pode entrar
+      let options = "";
+      let hasAvailableChar = false;
+
+      if (userCharacters.length === 0) {
+        options = `<option disabled>Sem personagens criados</option>`;
+      } else {
+        options = `<option value="" disabled selected>Escolha um herói...</option>`;
+        
+        userCharacters.forEach(c => {
+          const cLevel = Number(c.level); // Garante que é número
+          const isStatusOk = c.status === "Disponível";
+          const isLevelOk = cLevel >= mMin && cLevel <= mMax;
+
+          let disabledAttr = "";
+          let reasonText = "";
+
+          if (!isStatusOk) {
+            disabledAttr = "disabled";
+            reasonText = `(${c.status})`;
+          } else if (!isLevelOk) {
+            disabledAttr = "disabled";
+            reasonText = `(Nvl ${cLevel} inadequado)`;
+          } else {
+            hasAvailableChar = true;
+          }
+
+          options += `<option value="${c.id}" ${disabledAttr}>
+            ${c.name} (Lv.${cLevel}) ${reasonText}
+          </option>`;
+        });
+      }
+
+      actionArea = `
+        <div class="accept-area">
+          <select id="select-char-${m.id}">
+            ${options}
+          </select>
+          <button class="btn-accept" onclick="acceptMission('${m.id}')" ${!hasAvailableChar ? 'disabled' : ''}>
+            Aceitar
+          </button>
+        </div>
+      `;
     }
 
     div.innerHTML = `
@@ -268,7 +291,7 @@ async function renderMissions() {
       </div>
       <div class="mission-details">
         <p>📅 ${m.missionDay} às ${m.missionTime}</p>
-        <p>📊 Nível: ${m.levelMin} - ${m.levelMax} | 👥 Vagas: ${m.participants.length}/${m.maxPlayers}</p>
+        <p>📊 Nível: ${mMin} - ${mMax} | 👥 Vagas: ${m.participants.length}/${m.maxPlayers}</p>
         <div class="participants-list">
           <strong>Aventureiros:</strong><br>
           ${partsList || "Nenhum ainda"}
@@ -283,7 +306,7 @@ async function renderMissions() {
 }
 
 // ==============================
-// GLOBAL FUNCTIONS (Para onclick)
+// GLOBAL FUNCTIONS
 // ==============================
 window.acceptMission = async function(missionId) {
   const select = document.getElementById(`select-char-${missionId}`);
@@ -298,7 +321,6 @@ window.acceptMission = async function(missionId) {
     const missionRef = doc(db, "missions", missionId);
     const charRef = doc(db, "users", currentUser.uid, "characters", charId);
 
-    // 1. Atualizar Missão
     const missionSnap = await getDoc(missionRef);
     const missionData = missionSnap.data();
     
@@ -314,14 +336,13 @@ window.acceptMission = async function(missionId) {
       participants: [...missionData.participants, newParticipant]
     });
 
-    // 2. Atualizar Status do Personagem
     await updateDoc(charRef, {
       status: "Em Missão",
       currentMissionId: missionId
     });
 
     alert(`O personagem ${character.name} aceitou a missão!`);
-    await refreshData(); // Recarrega tudo
+    await refreshData(); 
 
   } catch (err) {
     console.error(err);
@@ -337,17 +358,14 @@ window.concludeMission = async function(missionId) {
     const missionSnap = await getDoc(missionRef);
     const missionData = missionSnap.data();
 
-    // Liberar status dos personagens participantes
     for (const p of missionData.participants) {
       const charRef = doc(db, "users", p.userUid, "characters", p.charId);
-      // O ideal seria usar batch write ou transaction, mas faremos simples aqui
       await updateDoc(charRef, {
         status: "Disponível",
         currentMissionId: null
       }).catch(e => console.log("Erro ao liberar char", e));
     }
 
-    // Deletar missão
     await deleteDoc(missionRef);
     await refreshData();
   } catch (e) {
